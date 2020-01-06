@@ -1,0 +1,59 @@
+﻿@{
+    ViewData["Title"] = "About";
+}
+
+    <h1 class="display-4">About</h1>
+<div class="text-left">
+    <pre>
+    Wykonanie prostego projektu w Visual Studio (Community lub wyższej)
+    prostej strony www w technologii ASP .NET Core 3
+
+    Baza danych może być lokalna w pliku MDF lub na SQL Express (Baza Microsoft SQL)
+
+    Strona powinna zawierać:
+
+        Stronę z logowaniem + opcjonalnie dodanie formularza z rejestracją użytkownika
+        Po zalogowaniu lista użytkowników (funkcja dodania, edytowania, usuwania)
+        Do wyświetlania danych można wykorzystywać kontrolki
+        np. kendo <a href="https://demos.telerik.com/kendo-ui?_ga=2.92479963.718509886.1577951290-1003589047.1530560719" target="_blank">(my używamy kontrolek kendo)</a>
+        – można też mechanizm wyświetlania i edytowania danych zrobić inaczej po swojemu.
+        Do wyglądu strony mile widziane zastosowanie Bootstrap
+        Strona z listą użytkowników powinna być dostępna tylko po zalogowaniu/autoryzacji
+        (pierwszego użytkownika można dodać ręcznie od strony bazy danych)
+
+    Pola użytkownika:
+
+    Imię, Nazwisko, Email, Rola (np. Klient, Admin), Login, Hasło, Data utworzenia
+
+    Tutaj mile widziane zrobienie najpierw prostej bazy danych, a potem podpięcie jej do projektu
+    - Scaffold-DbContext czyli tak zwane Database first
+
+    Inne zadanie gdyby to było problematyczne to można zrobić to samo,
+    ale zamiast ASP .NET Core 3 użyć ASP .NET MVC 5  z EntityFramework
+
+    (Core może zajeść więcej czasu)
+
+    Strona powinna jakoś w miarę przyjaźnie wyglądać od strony interfejsu użytkownika
+
+    Done:
+    dotnet user-secrets init
+    2cf5ce9a-f823-4603-8c08-3750b310284e
+    dotnet user-secrets set "WebApplicationIsk:ServiceApiKey" "IskPassword123"
+    Install-Package Microsoft.EntityFrameworkCore.SqlServer
+    Install-Package Microsoft.EntityFrameworkCore.Tools
+    dotnet ef dbcontext scaffold Name=WebApplicationIsk Microsoft.EntityFrameworkCore.SqlServer
+    dotnet ef dbcontext scaffold -f --context UserContext --table user --context-dir Data --output-dir Models Name=WebApplicationIsk Microsoft.EntityFrameworkCore.SqlServer
+    dotnet ef dbcontext scaffold -f Name=WebApplicationIsk Microsoft.EntityFrameworkCore.SqlServer
+    optionsBuilder.UseSqlServer("Server=.\\SQLExpress;Database=isk;Trusted_Connection=True;MultipleActiveResultSets=true");
+    or 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            IConfigurationRoot configuration = builder.Build();
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("WebApplicationIsk"));
+        }
+    }
+    </pre>
+</div>

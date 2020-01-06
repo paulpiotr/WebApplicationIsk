@@ -36,16 +36,7 @@ namespace WebApplicationIsk.Controllers
 
         public bool isAuthorized()
         {
-            var session_login = HttpContext.Session.Get<string>("Login");
-            if (null != session_login && session_login.Length > 0)
-            {
-                var authorization = _context.User.FirstOrDefault(x => x.Email == session_login || x.Login == session_login);
-                if (null != authorization)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return HttpContext.Session.IsAuthorizedUser();
         }
 
         public void UnAuthorization()

@@ -74,13 +74,14 @@ namespace WebApplicationIsk.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            //return View(_context.User.ToList<User>());
+            HttpContext.Session.RedirectToAuthorization(this);
             return View(await _context.User.ToListAsync());
         }
 
         // GET: Users/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            HttpContext.Session.RedirectToAuthorization(this);
             if (id == null)
             {
                 return NotFound();
@@ -96,18 +97,18 @@ namespace WebApplicationIsk.Controllers
             return View(user);
         }
 
-        // GET: Users/Create
-        public IActionResult Create()
+        // GET: Users/Register
+        public IActionResult Register()
         {
             return View();
         }
 
-        // POST: Users/Create
+        // POST: Users/Register
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Surname,Email,Role,Login,Password,Created")] User user)
+        public async Task<IActionResult> Register([Bind("Id,Email,Login,Password,Created")] User user)
         {
             if (this.EmailExist(user.Email))
             {
@@ -119,6 +120,40 @@ namespace WebApplicationIsk.Controllers
             }
             if (ModelState.IsValid)
             {
+                user.Password = HttpContext.Session.PasswordHash(user.Password);
+                _context.Add(user);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(user);
+        }
+
+        // GET: Users/Create
+        public IActionResult Create()
+        {
+            HttpContext.Session.RedirectToAuthorization(this);
+            return View();
+        }
+
+        // POST: Users/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Name,Surname,Email,Role,Login,Password,Created")] User user)
+        {
+            HttpContext.Session.RedirectToAuthorization(this);
+            if (this.EmailExist(user.Email))
+            {
+                ModelState.AddModelError("Email", "Email " + user.Email + " jest już używany!");
+            }
+            if (this.LoginExist(user.Login))
+            {
+                ModelState.AddModelError("Login", "Login " + user.Login + " jest już używany!");
+            }
+            if (ModelState.IsValid)
+            {
+                user.Password = HttpContext.Session.PasswordHash(user.Password);
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -129,6 +164,7 @@ namespace WebApplicationIsk.Controllers
         // GET: Users/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            HttpContext.Session.RedirectToAuthorization(this);
             if (id == null)
             {
                 return NotFound();
@@ -149,15 +185,24 @@ namespace WebApplicationIsk.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Surname,Email,Role,Login,Password,Created")] User user)
         {
+            HttpContext.Session.RedirectToAuthorization(this);
             if (id != user.Id)
             {
                 return NotFound();
             }
-
+            if (this.EmailExist(user.Email, user.Id))
+            {
+                ModelState.AddModelError("Email", "Email " + user.Email + " jest już używany!");
+            }
+            if (this.LoginExist(user.Login, user.Id))
+            {
+                ModelState.AddModelError("Login", "Login " + user.Login + " jest już używany!");
+            }
             if (ModelState.IsValid)
             {
                 try
                 {
+                    user.Password = HttpContext.Session.PasswordHash(user.Password);
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
@@ -180,6 +225,7 @@ namespace WebApplicationIsk.Controllers
         // GET: Users/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            HttpContext.Session.RedirectToAuthorization(this);
             if (id == null)
             {
                 return NotFound();
@@ -200,6 +246,7 @@ namespace WebApplicationIsk.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            HttpContext.Session.RedirectToAuthorization(this);
             var user = await _context.User.FindAsync(id);
             _context.User.Remove(user);
             await _context.SaveChangesAsync();
